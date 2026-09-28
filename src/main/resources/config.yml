@@ -1,0 +1,72 @@
+# ==============================================================================
+#                      HttpInterceptor Configuration
+# ==============================================================================
+
+settings:
+  # Print every intercepted HTTP request and response to server console in real-time
+  live-log-console: true
+
+  # Broadcast live alerts to players with permission 'httpinterceptor.notify'
+  notify-ops: true
+
+  # Maximum number of captured requests to keep in the in-memory history buffer
+  history-limit: 150
+
+  # Maximum body size in characters to store in history (prevents high memory usage on large downloads)
+  max-body-capture-chars: 10000
+
+# ==============================================================================
+#                           Loopback & Modification Rules
+# ==============================================================================
+# Rules are evaluated from top to bottom. The first rule that matches applies.
+#
+# Available Actions:
+#   - LOOPBACK: Completely short-circuits the request. Does NOT touch the internet.
+#               Returns your specified mock status code, mock headers, and mock body.
+#   - MODIFY:   Allows the real request to go to the server, but intercepts and
+#               mutates the server response (status code, headers, or body text/regex).
+#   - CAPTURE_ONLY: Captures the request and response without altering anything.
+# ==============================================================================
+
+rules:
+  # Example 1: Loopback for a specific plugin ("LuckSMP" or another plugin)
+  - name: "mock-auth-api"
+    enabled: true
+    # Specify the plugin name (case-insensitive), or "*" for all plugins
+    plugin: "LuckSMP"
+    # Regular expression matched against the target URL
+    url-pattern: ".*api\\.example\\.com/v1/auth.*"
+    # HTTP Method to match ("*", "GET", "POST", etc.)
+    method: "POST"
+    action: "LOOPBACK"
+    loopback:
+      status-code: 200
+      headers:
+        Content-Type: "application/json"
+      body: '{"status": "success", "licensed": true, "token": "mock-token-xyz"}'
+
+  # Example 2: Loopback bStats or update checks for all plugins
+  - name: "loopback-bstats"
+    enabled: false
+    plugin: "*"
+    url-pattern: ".*bstats\\.org/api/v1/data.*"
+    method: "POST"
+    action: "LOOPBACK"
+    loopback:
+      status-code: 200
+      headers:
+        Content-Type: "application/json"
+      body: '{"status": "ok"}'
+
+  # Example 3: Modify real server response (Text replacement)
+  - name: "github-api-modifier"
+    enabled: false
+    plugin: "*"
+    url-pattern: ".*api\\.github\\.com/repos/.*"
+    method: "GET"
+    action: "MODIFY"
+    modify:
+      override-status-code: 200
+      replace-text:
+        - from: '"draft": false'
+          to: '"draft": true'

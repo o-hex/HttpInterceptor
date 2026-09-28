@@ -1,0 +1,18 @@
+name: HttpInterceptor
+version: '1.0.0'
+main: com.example.httpinterceptor.HttpInterceptorPlugin
+api-version: '1.21'
+author: Isaac
+description: Advanced HTTP request/response capture, loopback, and modification engine.
+commands:
+  httpinterceptor:
+    description: Main command for HTTP Interceptor
+    aliases: [http, httpintercept]
+    permission: httpinterceptor.admin
+permissions:
+  httpinterceptor.admin:
+    description: Allows managing HTTP Interceptor and viewing captured traffic
+    default: op
+  httpinterceptor.notify:
+    description: Receives live notifications when HTTP requests are captured
+    default: op
